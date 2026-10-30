@@ -1,0 +1,66 @@
+# Konfigurasi brand target. Sumber: https://akungame.id (fetched 2026-10-30).
+# Field bertanda `# TODO(user)` tidak ada di situs dan harus dikonfirmasi pemilik brand.
+
+brand:
+  domain: akungame.id
+  display_name: "Akunmu Game"          # nama yang tampil di situs; domain-nya akungame.id
+  legal_entity: "PT Akunmu Digital Solution"
+  parent_brand: "Akunmu"
+  site_language: id-ID
+  base_url: https://akungame.id
+  source_url: https://akungame.id
+  fetched_at: "2026-10-30T20:37:13+07:00"
+
+positioning:
+  category: "Top up game (diamond, UC, voucher)"
+  headline_on_site: "Top Up Game Favoritmu Lebih Cepat dan Murah, Langsung Masuk ke Akunmu"
+  subheadline_on_site: "Isi diamond, UC, dan voucher game favoritmu dengan harga bersahabat. Prosesnya cepat, bayarnya gampang."
+  primary_cta_on_site: "Pilih Game"
+  usp_on_site:
+    - "Top up banyak game populer"
+    - "Admin siap bantu kalau ada kendala"
+    - "Harga bersahabat, banyak pilihan nominal"
+    - "Item cepat masuk, siap push rank"
+    - "Bisa top up untuk teman atau satu tim"
+    - "Pembayaran mudah & transaksi aman"
+  flow_on_site:
+    - "Pilih Game Favoritmu"
+    - "Masukkan ID Akun Game"
+    - "Pilih Nominal Top Up"
+    - "Bayar dengan Metode Favoritmu"
+    - "Item Masuk, Gas Main!"
+  operating_hours: "Setiap hari 06.00-00.00 WIB"
+  contact:
+    whatsapp: "+628122004342"
+    email: akunmu.tech@gmail.com
+    instagram: akunmu_net
+
+voice:
+  # Diambil dari copy situs. Gunakan sebagai baseline, bukan aturan final.
+  register: "santai, kamu-form, bahasa gamer ('Gas Main!', 'push rank')"
+  observed_phrases: ["harga bersahabat", "cepat masuk", "bayarnya gampang", "Gas Main!", "siap push rank"]
+  avoid: []                            # TODO(user): kata/klaim terlarang (mis. klaim 'termurah' tanpa bukti)
+
+visual:
+  # Sumber: class warna di HTML situs. Tema gelap & terang tersedia.
+  palette:
+    brand_blue:   "#2D9BF0"
+    brand_blue_deep: "#1B5FA8"
+    cta_gold:     "#F4B400"
+    headline_accent: "#FFD86A"
+    accent_orange: "#F07C1A"
+    dark_bg:      "#121826"
+    footer_bg:    "#181D27"
+    on_dark_text: "#FDFDFD"
+  hero_gradient_dark: "radial blue (#2A86D6 -> #1A4A7C -> #121826)"
+  typography: "DM Sans"
+  shape_language: "rounded-full buttons, rounded-2xl cards, soft glow shadow berwarna biru"
+  mascot: null                          # TODO(user): ada maskot/karakter resmi?
+  logo_asset: "/static/akunmu-tech.png (dari situs)"
+  assets_allowed_to_reuse: []           # TODO(user): daftar aset resmi yang boleh dipakai di gambar
+
+content_rules:
+  must_include_cta_to: "akungame.id"
+  price_policy: "Harga hanya dari memory/brand_matrix.json dengan source_url + fetched_at. Dilarang menebak."
+  no_unverified_claims: true            # mis. 'termurah', 'garansi', stok
+  competitor_asset_copy: forbidden

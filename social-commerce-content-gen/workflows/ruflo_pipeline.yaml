@@ -1,0 +1,88 @@
+version: "1.0"
+name: social-commerce-content-gen-pipeline
+description: >
+  Pipeline plan -> execute -> critique untuk menghasilkan konten sosmed
+  (image prompt + caption) dari satu produk Akunmu Game.
+
+stages:
+
+  - id: preflight
+    name: Pre-Flight Check
+    persona: "@CreativeDirector"
+    steps:
+      - action: read_file
+        path: memory/lessons_learned.jsonl
+        required: false
+        on_content: apply_active_rules
+      - action: read_file
+        path: config/target_brand.yaml
+      - action: read_file
+        path: memory/brand_matrix.json
+        note: "Validasi product_url ada di sini. Jika tidak ditemukan, hentikan dan minta klarifikasi."
+
+  - id: plan
+    name: Plan
+    persona: "@CreativeDirector"
+    depends_on: [preflight]
+    steps:
+      - action: select_product
+        source: memory/brand_matrix.json
+        criteria: sesuai input product_url
+      - action: select_pattern
+        source: memory/competitor_patterns.md
+        criteria: pilih 1-2 visual_hook yang paling relevan dengan produk
+      - action: output_plan
+        format: |
+          Produk: [nama] - Rp[harga] (sumber: brand_matrix.json, fetched_at: [date])
+          Visual hook: [id node] - [label]
+          Rantai graph: [chain dari graphify_nodes.json]
+          Komposisi: [angle dari prompts/02]
+          Risiko: [potensi gagal QA]
+
+  - id: execute
+    name: Execute
+    persona: "@CreativeDirector"
+    depends_on: [plan]
+    parallel: false
+    steps:
+      - action: run_module
+        module: prompts/02_image_prompt_builder.md
+        output_key: image_prompt
+      - action: run_module
+        module: prompts/03_caption_copywriter.md
+        output_key: caption
+      - action: assemble_grounding
+        fields:
+          product_source_url: dari brand_matrix.json
+          price_fetched_at: dari brand_matrix.json fetched_at
+
+  - id: critique
+    name: Critique
+    persona: "@QACritic"
+    depends_on: [execute]
+    steps:
+      - action: run_module
+        module: prompts/04_critic_evaluator.md
+        output_key: qa_report
+      - action: gate
+        condition: "qa_report.passed == true OR iteration >= 3"
+        on_fail:
+          action: loop_back
+          to: execute
+          with: qa_report.issues
+
+  - id: output
+    name: Output
+    persona: "@CreativeDirector"
+    depends_on: [critique]
+    steps:
+      - action: write_sample
+        path: "samples/{game_slug}_{product_id}.md"
+      - action: update_graph
+        path: memory/graphify_nodes.json
+        note: "Naikkan confidence node yang terbukti menghasilkan konten passed"
+      - action: check_feedback
+        note: "Jika ada user_feedback di input, trigger reflexion loop ke @SkillEngineer"
+
+max_iterations: 3
+on_max_iterations: show_best_with_remaining_issues

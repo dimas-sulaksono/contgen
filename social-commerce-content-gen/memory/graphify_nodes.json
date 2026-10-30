@@ -1,0 +1,183 @@
+{
+  "_meta": {
+    "generated_by": "@CompetitiveAnalyst + graphify schema",
+    "generated_at": "2026-10-30T22:31:00+07:00",
+    "chain": "product -> pain_point -> visual_hook -> content_format",
+    "note": "Diperbarui dengan data katalog API terverifikasi (8 game, 73 nominal) dan analisis 12 screenshot Instagram @lapakgaming.id."
+  },
+  "nodes": [
+    {
+      "id": "p_mlbb_tiers",
+      "type": "product",
+      "label": "Mobile Legends (5 DM Rp2.700 | 34 DM Rp12.200 | Weekly Diamond Pass Rp32.900)",
+      "edges": [
+        {"to": "pp_price_transparency", "relation": "solves"},
+        {"to": "pp_event_fomo", "relation": "solves"},
+        {"to": "pp_speed", "relation": "solves"}
+      ],
+      "source": "https://akungame.id/topup/mobile-legends (via api.akunmu.net)",
+      "confidence": 1.0
+    },
+    {
+      "id": "p_ff_tiers",
+      "type": "product",
+      "label": "Free Fire (10 DM Rp3.000 | 70 DM Rp9.700 | 176 DM Rp22.400)",
+      "edges": [
+        {"to": "pp_price_transparency", "relation": "solves"},
+        {"to": "pp_event_fomo", "relation": "solves"},
+        {"to": "pp_group", "relation": "solves"}
+      ],
+      "source": "https://akungame.id/topup/free-fire (via api.akunmu.net)",
+      "confidence": 1.0
+    },
+    {
+      "id": "p_hok_tiers",
+      "type": "product",
+      "label": "Honor Of Kings (23 Tokens Rp7.900 | 80 Tokens Rp16.200 | 240 Tokens Rp47.300)",
+      "edges": [
+        {"to": "pp_price_transparency", "relation": "solves"},
+        {"to": "pp_speed", "relation": "solves"}
+      ],
+      "source": "https://akungame.id/topup/honor-of-kings (via api.akunmu.net)",
+      "confidence": 1.0
+    },
+    {
+      "id": "p_valorant_tiers",
+      "type": "product",
+      "label": "Valorant (475 VP Rp55.200 | 1000 VP Rp108.000)",
+      "edges": [
+        {"to": "pp_trust", "relation": "solves"}
+      ],
+      "source": "https://akungame.id/topup/valorant (via api.akunmu.net)",
+      "confidence": 1.0
+    },
+    {
+      "id": "pp_price_transparency",
+      "type": "pain_point",
+      "label": "Khawatir harga jebakan / biaya tambahan saat checkout atau bingung pilih nominal yang pas",
+      "edges": [
+        {"to": "vh_3tier_pricing_showcase", "relation": "answered_by"},
+        {"to": "vh_exact_price_cta_bar", "relation": "answered_by"}
+      ],
+      "source": "inputs/instagram/1.png-12.png (pola IG4 & IG5: multi-tier price + badge Harga Final)",
+      "confidence": 0.95
+    },
+    {
+      "id": "pp_event_fomo",
+      "type": "pain_point",
+      "label": "Takut ketinggalan event skin / gacha / mabar karena belum isi diamond/token",
+      "edges": [
+        {"to": "vh_event_skin_tie_in", "relation": "answered_by"},
+        {"to": "vh_3tier_pricing_showcase", "relation": "answered_by"}
+      ],
+      "source": "inputs/instagram/1.png,2.png,4.png,6.png,10.png,11.png,12.png (pola IG6)",
+      "confidence": 0.95
+    },
+    {
+      "id": "pp_speed",
+      "type": "pain_point",
+      "label": "Takut item telat masuk saat mau push rank",
+      "edges": [
+        {"to": "vh_benefit_stack", "relation": "answered_by"}
+      ],
+      "source": "https://akungame.id ('Item cepat masuk, siap push rank')",
+      "confidence": 0.9
+    },
+    {
+      "id": "pp_trust",
+      "type": "pain_point",
+      "label": "Ragu keamanan transaksi untuk nominal besar",
+      "edges": [
+        {"to": "vh_benefit_stack", "relation": "answered_by"}
+      ],
+      "source": "https://akungame.id ('Pembayaran mudah & transaksi aman')",
+      "confidence": 0.9
+    },
+    {
+      "id": "pp_group",
+      "type": "pain_point",
+      "label": "Mau patungan atau top up bareng teman satu squad",
+      "edges": [
+        {"to": "vh_3tier_pricing_showcase", "relation": "answered_by"}
+      ],
+      "source": "https://akungame.id ('Bisa top up untuk teman atau satu tim')",
+      "confidence": 0.85
+    },
+    {
+      "id": "vh_3tier_pricing_showcase",
+      "type": "visual_hook",
+      "label": "3-Zona Vertikal dengan 3 Kartu Nominal Sejajar (Entry/Mid/Pass) + Ikon 3D Currency + Angka Emas Besar",
+      "edges": [
+        {"to": "cf_feed_4x5", "relation": "fits"},
+        {"to": "cf_feed_1x1", "relation": "fits"}
+      ],
+      "source": "inputs/instagram/1.png,9.png,10.png,11.png,12.png (pola IG2 & IG4)",
+      "confidence": 0.98
+    },
+    {
+      "id": "vh_exact_price_cta_bar",
+      "type": "visual_hook",
+      "label": "Bottom Pill CTA Emas (#F4B400) + Trust Sub-badge Biru (#2D9BF0) dengan Harga Eksak Tanpa Pembulatan",
+      "edges": [
+        {"to": "cf_feed_4x5", "relation": "fits"},
+        {"to": "cf_story_9x16", "relation": "fits"}
+      ],
+      "source": "inputs/instagram/1.png-12.png (adaptasi pola IG5 untuk identitas Akunmu)",
+      "confidence": 0.95
+    },
+    {
+      "id": "vh_event_skin_tie_in",
+      "type": "visual_hook",
+      "label": "Headline Momen/Event Kapital Bold di Atas + Siluet/Suasana Action Tema Game di Bawah",
+      "edges": [
+        {"to": "cf_feed_4x5", "relation": "fits"},
+        {"to": "cf_story_9x16", "relation": "fits"}
+      ],
+      "source": "inputs/instagram/1.png,4.png,6.png,8.png,10.png,11.png,12.png (pola IG6)",
+      "confidence": 0.95
+    },
+    {
+      "id": "vh_benefit_stack",
+      "type": "visual_hook",
+      "label": "Tumpukan 3-4 Benefit Ber-ikon (Cepat Masuk, Harga Bersahabat, Transaksi Aman)",
+      "edges": [
+        {"to": "cf_feed_1x1", "relation": "fits"},
+        {"to": "cf_feed_4x5", "relation": "fits"}
+      ],
+      "source": "https://www.lapakgaming.com/id-id (pola W1) + USP https://akungame.id",
+      "confidence": 0.9
+    },
+    {
+      "id": "cf_feed_4x5",
+      "type": "content_format",
+      "label": "Instagram Feed Portrait 4:5 (format dominan 12/12 post kompetitor)",
+      "edges": [],
+      "source": "inputs/instagram/1.png-12.png (pola IG1)",
+      "confidence": 1.0
+    },
+    {
+      "id": "cf_feed_1x1",
+      "type": "content_format",
+      "label": "Feed Square 1:1",
+      "edges": [],
+      "source": "openspec.yaml",
+      "confidence": 1.0
+    },
+    {
+      "id": "cf_story_9x16",
+      "type": "content_format",
+      "label": "Story / Reels Cover 9:16",
+      "edges": [],
+      "source": "openspec.yaml",
+      "confidence": 1.0
+    }
+  ],
+  "complete_chains": [
+    ["p_mlbb_tiers", "pp_price_transparency", "vh_3tier_pricing_showcase", "cf_feed_4x5"],
+    ["p_mlbb_tiers", "pp_event_fomo", "vh_event_skin_tie_in", "cf_feed_4x5"],
+    ["p_ff_tiers", "pp_price_transparency", "vh_3tier_pricing_showcase", "cf_feed_4x5"],
+    ["p_ff_tiers", "pp_group", "vh_3tier_pricing_showcase", "cf_feed_4x5"],
+    ["p_hok_tiers", "pp_speed", "vh_benefit_stack", "cf_feed_1x1"],
+    ["p_valorant_tiers", "pp_trust", "vh_benefit_stack", "cf_feed_4x5"]
+  ]
+}

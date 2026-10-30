@@ -1,0 +1,141 @@
+openspec: "1.0"
+info:
+  name: social-commerce-content-gen
+  version: 1.0.0
+  description: >
+    Kontrak input/output untuk skill generator konten sosmed (image prompt + caption)
+    untuk brand target, berbasis data produk dan pola kompetitor.
+  status: stable
+
+definitions:
+  ContentFormat:
+    type: string
+    enum: [feed_1x1, feed_4x5, story_9x16]
+
+  ISODateTime:
+    type: string
+    format: date-time
+
+  Grounding:
+    type: object
+    required: [product_source_url, price_fetched_at]
+    properties:
+      product_source_url: {type: string, format: uri}
+      price_fetched_at: {$ref: "#/definitions/ISODateTime"}
+
+  # ---------- memory/brand_matrix.json ----------
+  BrandMatrix:
+    type: object
+    required: [brand, fetched_at, source_status, products]
+    properties:
+      brand: {type: string}
+      fetched_at: {$ref: "#/definitions/ISODateTime"}
+      source_status:
+        type: string
+        enum: [complete, partial, unavailable]
+      products:
+        type: array
+        items:
+          type: object
+          required: [id, name, category, source_url, fetched_at, data_quality]
+          properties:
+            id: {type: string}
+            name: {type: string}
+            category: {type: string}
+            denominations:
+              type: array
+              items:
+                type: object
+                required: [label, price_idr]
+                properties:
+                  label: {type: string}
+                  price_idr: {type: [integer, "null"]}   # null = NOT AVAILABLE, jangan ditebak
+            usp: {type: array, items: {type: string}}
+            source_url: {type: string, format: uri}
+            fetched_at: {$ref: "#/definitions/ISODateTime"}
+            data_quality:
+              type: string
+              enum: [verified, name_only, inferred]
+
+  # ---------- memory/graphify_nodes.json ----------
+  GraphNode:
+    type: object
+    required: [id, type, label, edges, source, confidence]
+    properties:
+      id: {type: string}
+      type: {type: string, enum: [product, pain_point, visual_hook, content_format]}
+      label: {type: string}
+      edges:
+        type: array
+        items:
+          type: object
+          required: [to, relation]
+          properties:
+            to: {type: string}
+            relation: {type: string}
+      source: {type: string}          # url atau "screenshot:<file>" atau "inference"
+      confidence: {type: number, minimum: 0, maximum: 1}
+
+  # ---------- memory/lessons_learned.jsonl (1 baris = 1 objek) ----------
+  LessonRecord:
+    type: object
+    required: [timestamp, error_type, bad_pattern, correction_rule, scope, status]
+    properties:
+      timestamp: {$ref: "#/definitions/ISODateTime"}
+      error_type: {type: string, enum: [visual, tone, factual, format, other]}
+      bad_pattern: {type: string}
+      correction_rule: {type: string}
+      scope: {type: string, pattern: "^(global|product:.+)$"}
+      status: {type: string, enum: [active, superseded]}
+
+input:
+  type: object
+  required: [product_url, content_format]
+  properties:
+    product_url: {type: string, format: uri, description: "Harus berdomain target (config/target_brand.yaml)"}
+    content_format: {$ref: "#/definitions/ContentFormat"}
+    campaign_angle: {type: string, description: "promo | urgensi | edukasi | dll"}
+    user_feedback: {type: string, description: "Jika ada, picu Reflexion Loop"}
+
+output:
+  type: object
+  required: [image_prompt, caption, grounding, qa_report]
+  properties:
+    image_prompt:
+      type: object
+      required: [prompt, aspect_ratio, text_overlay, layout_notes]
+      properties:
+        prompt: {type: string}
+        negative_prompt: {type: string}
+        aspect_ratio: {type: string}
+        text_overlay:
+          type: object
+          required: [headline]
+          properties:
+            headline: {type: string}
+            price: {type: string}
+            badge: {type: string}
+        layout_notes: {type: string}
+    caption:
+      type: object
+      required: [hook, body, cta, hashtags]
+      properties:
+        hook: {type: string, maxLength: 125}
+        body: {type: string}
+        cta: {type: string}
+        hashtags: {type: array, minItems: 5, maxItems: 12, items: {type: string}}
+    grounding: {$ref: "#/definitions/Grounding"}
+    qa_report:
+      type: object
+      required: [score, passed, issues]
+      properties:
+        score: {type: number, minimum: 1, maximum: 5}
+        passed: {type: boolean}
+        issues: {type: array, items: {type: string}}
+
+state:
+  # intermediate state antar modul prompts/
+  after_01_scraper_analyzer: {produces: ["memory/brand_matrix.json", "memory/competitor_patterns.md", "memory/graphify_nodes.json"]}
+  after_02_image_prompt_builder: {produces: ["output.image_prompt"]}
+  after_03_caption_copywriter: {produces: ["output.caption"]}
+  after_04_critic_evaluator: {produces: ["output.qa_report"]}

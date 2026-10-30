@@ -1,0 +1,32 @@
+competitors:
+  - id: lapakgaming_web
+    name: Lapakgaming
+    type: catalog_promo
+    url: https://www.lapakgaming.com/id-id
+    use_for: [katalog, promo, kategori, trust_signal]
+    access: {status: ok, method: "read_url_content (HTML SSR)", checked_at: "2026-10-30"}
+
+  - id: lapakgaming_instagram
+    name: lapakgaming.id (Instagram)
+    type: social_visual
+    url: https://www.instagram.com/lapakgaming.id/
+    use_for: [visual, tone, hook, cta, hashtag]
+    access:
+      status: ok_via_fallback
+      method: "12 user-provided post screenshots in inputs/instagram/ (1.png - 12.png)"
+      checked_at: "2026-10-30"
+      sample_count: 12
+      note: "Gambar post lengkap terbaca (4:5 aspect ratio). Caption teks di luar gambar tidak disertakan dalam screenshot, sehingga analisis fokus pada anatomi visual, on-image copy, harga, dan in-image CTA."
+
+policy:
+  bypass_login: forbidden
+  respect_robots_txt: true
+  crawl: "single-page fetch saja, tanpa crawling massal"
+  asset_copy: forbidden
+  analyze: "pola struktural saja (komposisi, hook, CTA), bukan salinan"
+
+other_links_found_on_competitor_site:
+  tiktok: https://www.tiktok.com/@lapakgaming.id
+  youtube: https://www.youtube.com/@lapakgamingofficial
+  facebook: https://web.facebook.com/lapakgaming.id
+  twitter: https://twitter.com/lapakgamingid
