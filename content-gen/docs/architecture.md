@@ -1,120 +1,141 @@
-# Architecture & Reproducible Guide: `social-commerce-content-gen`
+# Architecture & Reproducible Guide: `content-gen`
 
-> **Status:** `v1.0.0 (Stable — Fase 1, 2, dan 3 Selesai)`
+> **Status:** `v1.1.0 (Stable — Refactored to content-gen & Multi-Harness Universal Support)`
 > **Dikelola dengan standar skill:** `auto-document` (`@LeadArchitect` & `@SkillEngineer`)
 
 ---
 
 ## 1. Judul & Konteks
 
-`social-commerce-content-gen` adalah **AI Agent Skill portabel (agent-agnostic)** untuk menghasilkan paket konten media sosial siap posting (**Image Generation Prompt + Layout Overlay + Social Media Caption + QA Report**) bagi **Akunmu Game (`https://akungame.id`)**.
+`content-gen` (sebelumnya `social-commerce-content-gen`) adalah **AI Agent Skill portabel (agent-agnostic)** untuk memproduksi paket konten media sosial siap posting (**Image Generation Prompt In-Game HUD + Layout Overlay + Social Media Caption + QA Report**) untuk brand target **Akunmu Game (`https://akungame.id`)** atau brand kustom lainnya.
 
-Skill ini memecahkan 3 masalah utama pembuatan konten social commerce:
-1. **Halusinasi harga & produk:** Agen dilarang mengarang harga; seluruh angka wajib ditarik dari katalog terverifikasi di `memory/brand_matrix.json` (73 nominal dari 8 game via API publik `https://api.akunmu.net/api/v1`).
-2. **Kualitas visual & struktur copy:** Mengadaptasi pola terukur dari situs web dan **12 post Instagram kompetitor (`@lapakgaming.id`)** di `memory/competitor_patterns.md` (kanvas vertikal `4:5`, hierarki 3-Zona, *Multi-Tier Pricing Showcase* 3 kartu sejajar, dan *Bottom Trust CTA*), sambil menjaga diferensiasi identitas warna `Akunmu Game` (`#2D9BF0` + `#F4B400` + `#121826`).
-3. **Kesalahan berulang lintas sesi:** Menerapkan **Persistent Reflexion Loop** di `memory/lessons_learned.jsonl` yang wajib dibaca pada tahap *Pre-Flight Check* di setiap eksekusi.
+### Masalah yang Diselesaikan
+
+1. **Halusinasi harga & nominal voucher:** Seluruh data wajib ditarik dari katalog terverifikasi di [`memory/brand_matrix.json`](../memory/brand_matrix.json) yang memiliki `source_url` dan timestamp `fetched_at`.
+2. **Kualitas visual & struktur copy:** Mengadopsi formula teruji dari 12 post Instagram kompetitor (`@lapakgaming.id`) di [`memory/competitor_patterns.md`](../memory/competitor_patterns.md) menggunakan kanvas vertikal `4:5`, hierarki 3-Zona (*Esports HUD Header*, *3-Tier Pricing Cards*, dan *Bottom Pill Trust CTA*), dengan standar prompt **In-Game Native UI & 2.5D Depth Layering (`N1`–`N6`)**.
+3. **Penyimpangan Model Karakter Berlisensi:** Menghindari halusinasi karakter game dengan mengintegrasikan pengunduh otomatis aset resmi Fandom Wiki API via [`scripts/fetch_character_reference.py`](../../scripts/fetch_character_reference.py) ke dalam parameter `MediaPaths`.
+4. **Kesalahan Berulang Lintas Sesi:** Menerapkan **Persistent Reflexion Loop** di [`memory/lessons_learned.jsonl`](../memory/lessons_learned.jsonl) yang wajib dibaca pada tahap *Pre-Flight Check* di setiap eksekusi.
+5. **Kesiapan Eksekusi Lintas Model/Harness:** Pengguna Claude Code, Antigravity, Cursor, VS Code Copilot, Muse, Codex, Open Code, Hermes Agent, dan OpenClaw dapat langsung mengkloning dan menjalankannya tanpa konfigurasi manual.
 
 ---
 
 ## 2. Arsitektur Teknis & Struktur Direktori
 
 ```text
-social-commerce-content-gen/
-├── SKILL.md                          # Entry point universal (Antigravity, Claude, Hermes, OpenClaw)
-├── openspec.yaml                     # Kontrak skema I/O, BrandMatrix, GraphNode, LessonRecord
-├── config/
-│   ├── target_brand.yaml             # Identitas, USP, palet warna, dan aturan konten Akunmu Game
-│   └── competitors.yaml              # Sumber referensi kompetitor & kebijakan non-copy
-├── inputs/
-│   └── instagram/                    # 12 screenshot post IG @lapakgaming.id (1.png - 12.png)
-├── memory/
-│   ├── brand_matrix.json             # 8 game & 73 nominal harga terverifikasi (api.akunmu.net)
-│   ├── competitor_patterns.md        # 4 pola web (W1-W4) + 9 pola visual IG (IG1-IG9)
-│   ├── graphify_nodes.json           # Knowledge graph: product -> pain_point -> visual_hook -> format
-│   ├── lessons_learned.jsonl         # Append-only Reflexion Loop log (4 aturan aktif)
-│   └── winning_patterns.md           # Formula visual & copy yang lolos QA >= 4.7/5.0
-├── prompts/
-│   ├── 01_scraper_analyzer.md        # Modul ekstraksi katalog & analisis kompetitor (@CompetitiveAnalyst)
-│   ├── 02_image_prompt_builder.md    # Modul generator visual 3-Zona 4:5 (@CreativeDirector)
-│   ├── 03_caption_copywriter.md      # Modul copywriting Hook-Body-CTA-Hashtag (@CreativeDirector)
-│   └── 04_critic_evaluator.md        # Modul QA independen 6 kriteria (@QACritic)
-├── workflows/
-│   └── ruflo_pipeline.yaml           # State machine: preflight -> plan -> execute -> critique -> output
-├── samples/
-│   ├── mobile-legends_5-diamond.md   # Sampel 1 (MLBB 3-Tier: Rp2.700 / Rp12.200 / WDP Rp32.900, QA 4.8)
-│   └── free-fire_10-diamond.md       # Sampel 2 (FF 3-Tier: Rp3.000 / Rp9.700 / Rp22.400, QA 4.8)
-└── docs/
-    └── architecture.md               # Dokumentasi arsitektur & panduan reproduksi ini
+contgen/
+├── META_PROMPT.md                    # Universal Orchestration Meta-Prompt (Mode 1 & Mode 2)
+├── AGENTS.md                         # Instruksi agen & aturan eksekusi persona
+├── CLAUDE.md                         # Konfigurasi workspace otomatis Claude Code
+├── .cursorrules                      # Aturan asisten Cursor & Windsurf
+├── .github/copilot-instructions.md   # Aturan asisten VS Code Copilot
+├── .agents/
+│   ├── personas/                     # 5 Definisi Persona (@LeadArchitect, dll.)
+│   └── skills/                       # Symlink: content-gen -> ../../content-gen
+├── .claude/skills/                   # Symlink: content-gen -> ../../content-gen
+├── scripts/
+│   ├── validate_system.py            # CLI validator integritas skema & memori
+│   └── fetch_character_reference.py  # Skrip pengunduh aset resmi MediaWiki (cross-platform)
+└── content-gen/                      # Paket skill utama (relatif & portabel)
+    ├── SKILL.md                      # Entry point universal
+    ├── openspec.yaml                 # Kontrak OpenSpec 1.0 (I/O & validasi skema)
+    ├── config/
+    │   ├── target_brand.yaml         # Identitas, USP, palet warna, dan aturan konten
+    │   └── competitors.yaml          # Sumber referensi kompetitor
+    ├── inputs/instagram/             # 12 screenshot post IG kompetitor (1.png - 12.png)
+    ├── memory/
+    │   ├── brand_matrix.json         # 8 game & 73 nominal harga terverifikasi
+    │   ├── competitor_patterns.md    # 4 pola web + 9 pola visual Instagram terbedah
+    │   ├── graphify_nodes.json       # Knowledge graph: product -> pain_point -> hook -> format
+    │   ├── lessons_learned.jsonl     # Append-only Reflexion Loop log
+    │   └── winning_patterns.md       # Formula konten yang lolos QA >= 4.7
+    ├── prompts/
+    │   ├── 01_scraper_analyzer.md    # Ekstraksi & analisis kompetitor (@CompetitiveAnalyst)
+    │   ├── 02_image_prompt_builder.md# Generator visual In-Game HUD N1-N6 (@CreativeDirector)
+    │   ├── 03_caption_copywriter.md  # Copywriting Hook-Body-CTA (@CreativeDirector)
+    │   └── 04_critic_evaluator.md    # QA independen 6 kriteria (@QACritic)
+    ├── workflows/
+    │   └── ruflo_pipeline.yaml       # State machine orkestrasi plan-execute-critique
+    ├── samples/                      # Bukti hasil generate konten & evaluasi QA
+    └── docs/
+        └── architecture.md           # Dokumentasi teknis arsitektur ini
 ```
 
-### Pemetaan Persona (`.agents/personas/*.md`)
-- **`@LeadArchitect`**: Struktur direktori, kontrak `openspec.yaml`, dan konfigurasi brand.
-- **`@CompetitiveAnalyst`**: Ekstraksi katalog API & pembedahan 12 post Instagram kompetitor.
-- **`@CreativeDirector`**: Perancangan prompt visual `4:5`, copywriting, dan eksekusi sampel.
-- **`@QACritic`**: Evaluasi independen 6 kriteria (minimal rata-rata `4.0`, tanpa kriteria `< 3`).
-- **`@SkillEngineer`**: Pemaketan `SKILL.md` lintas-harness, *Reflexion Loop*, dan dokumentasi.
+### Pembagian Peran 5 Persona Multi-Agent
 
-### Tooling & Deviasi yang Dicatat
-| Kebutuhan | Primary di Meta-Prompt | Yang Digunakan di Repo |
-|---|---|---|
-| Struktur direktori | `workspace-manager` | Dibangun modular sesuai spesifikasi |
-| Dokumentasi | `auto-docs` | Skill `auto-document` |
-| Kontrak skema | `openspec` | Skema OpenSpec 1.0 + JSON Schema di `openspec.yaml` |
-| Ekstraksi katalog | `understand-anything` | Fetch langsung ke API publik `https://api.akunmu.net/api/v1/topup/*` + analisis 12 screenshot IG |
-| Knowledge graph | `graphify` | `memory/graphify_nodes.json` (16 node, 6 rantai lengkap) |
-| Orkestrasi pipeline | `ruflo` + `superpower` | `workflows/ruflo_pipeline.yaml` (`preflight -> plan -> execute -> critique -> output`) |
+- **`@LeadArchitect`**: Arsitektur, integritas kontrak OpenSpec, pre-flight check, dan brand config.
+- **`@CompetitiveAnalyst`**: Katalog berbasis bukti (`brand_matrix.json`) dan reverse-engineering kompetitor.
+- **`@CreativeDirector`**: Perancangan prompt visual `4:5` (N1–N6), copywriting, dan eksekusi draf.
+- **`@QACritic`**: Penilai independen 6 kriteria dengan hak veto (skor $\ge 4.0$, kriteria $< 3$ dilarang lolos).
+- **`@SkillEngineer`**: Pemaketan skill lintas-harness, *Reflexion Loop*, dan dokumentasi arsitektur.
 
 ---
 
-## 3. Panduan Reproduksi & Instalasi Lintas Agent Harness
+## 3. Panduan Reproduksi & Setup Lintas Lingkungan (Reproducible Guide)
 
-### A. Pemasangan di Antigravity IDE / Claude Code
-Salin atau buat symlink folder `social-commerce-content-gen` ke direktori skill workspace atau global:
-
-```bash
-# Opsi 1: Pasang di level Workspace (direkomendasikan agar terbawa di Git)
-mkdir -p .agents/skills
-ln -s "$(pwd)/social-commerce-content-gen" .agents/skills/social-commerce-content-gen
-
-# Opsi 2: Pasang untuk Claude Code
-mkdir -p .claude/skills
-ln -s "$(pwd)/social-commerce-content-gen" .claude/skills/social-commerce-content-gen
-```
-
-Cara memanggil di chat:
-> *"Gunakan skill `social-commerce-content-gen` untuk membuat konten feed 4:5 game Honor Of Kings dengan angle push rank."*
-
-### B. Pemasangan di Hermes / OpenClaw
-1. Daftarkan kontrak input/output menggunakan `social-commerce-content-gen/openspec.yaml`.
-2. Arahkan orchestrator state machine ke `social-commerce-content-gen/workflows/ruflo_pipeline.yaml`.
-3. Pastikan working directory eksekusi berada di dalam `social-commerce-content-gen/` agar seluruh path relatif (`memory/*`, `prompts/*`, `config/*`) terbaca langsung.
-
-### C. Perintah Reproduksi Pembaruan Katalog Produk (`brand_matrix.json`)
-Jika ingin menyegarkan harga langsung dari API publik `Akunmu Game`:
+### A. Persiapan Lingkungan Awal (Zero-to-Hero)
 
 ```bash
-curl -s "https://api.akunmu.net/api/v1/topup/games" | python3 -m json.tool | head -n 30
+# 1. Masuk ke direktori proyek
+cd /path/to/contgen
+
+# 2. Pastikan symlink skill terpasang untuk Antigravity dan Claude Code
+mkdir -p .agents/skills .claude/skills scripts
+ln -sf ../../content-gen .agents/skills/content-gen
+ln -sf ../../content-gen .claude/skills/content-gen
+ln -sf ../content-gen/scripts/validate_system.py scripts/validate_system.py
+ln -sf ../content-gen/scripts/fetch_character_reference.py scripts/fetch_character_reference.py
+
+# 3. Jalankan pengujian integritas pra-terbang
+python3 scripts/validate_system.py
 ```
 
-### D. Perintah Validasi Integritas Skill (Quality Gate Check)
-Jalankan perintah berikut dari root repositori untuk memastikan seluruh file JSON, JSONL, YAML, dan rantai Knowledge Graph valid:
+### B. Cara Penggunaan Berdasarkan Host / Model AI
+
+1. **Antigravity IDE:**
+   Ketik perintah di chat IDE:
+   > *"Gunakan skill `content-gen` untuk membuat postingan feed 4:5 promo Mobile Legends Weekly Diamond Pass."*
+
+2. **Claude Code CLI:**
+   Jalankan dari terminal:
+
+   ```bash
+   claude "Jalankan META_PROMPT.md: buat konten promo Honor of Kings 80 Tokens angle push rank weekend."
+   ```
+
+3. **Cursor / VS Code Copilot / Muse / Codex / Open Code:**
+   Buka panel chat asisten di editor, salin prompt berikut:
+
+   ```text
+   Ikuti META_PROMPT.md dalam repositori ini. Bertindaklah sebagai Meta-Orchestrator dan jalankan Mode 1 untuk produk: Free Fire 10 Diamond. Tampilkan hasil Image Prompt N1-N6, Caption, dan QA Critic Report.
+   ```
+
+4. **Hermes Agent / OpenClaw / Headless Pipeline:**
+   Arahkan kontrak I/O ke `content-gen/openspec.yaml` dan alur state machine ke `content-gen/workflows/ruflo_pipeline.yaml`.
+
+### C. Pengunduhan Aset Karakter Game Asli (Cross-Platform)
+
+Skrip `fetch_character_reference.py` mendukung Linux, macOS, dan Windows (otomatis normalisasi format via Pillow, macOS `sips`, atau binary copy):
 
 ```bash
-python3 -c '
-import json
-base = "social-commerce-content-gen/"
-for f in ["memory/brand_matrix.json", "memory/graphify_nodes.json"]:
-    json.load(open(base + f))
-    print("OK JSON:", f)
-with open(base + "memory/lessons_learned.jsonl") as fh:
-    lines = [json.loads(line) for line in fh if line.strip()]
-    print("OK JSONL: memory/lessons_learned.jsonl ->", len(lines), "active rules")
-g = json.load(open(base + "memory/graphify_nodes.json"))
-ids = {n["id"] for n in g["nodes"]}
-assert all(all(i in ids for i in c) for c in g["complete_chains"])
-print("OK Graph Chains:", len(g["complete_chains"]))
-'
-for f in openspec.yaml config/target_brand.yaml config/competitors.yaml workflows/ruflo_pipeline.yaml; do
-  ruby -ryaml -e "YAML.load_file(ARGV[0]); puts %(OK YAML: #{ARGV[0]})" "social-commerce-content-gen/$f"
-done
+# Contoh: Mengunduh splash art resmi untuk Honor of Kings
+python3 scripts/fetch_character_reference.py \
+  --game honor-of-kings \
+  --query "Satoru Gojo" \
+  --out content-gen/assets/references/hok_gojo.jpg
+
+# Contoh: Mengunduh splash art resmi untuk Mobile Legends
+python3 scripts/fetch_character_reference.py \
+  --game mobile-legends \
+  --query "Ruby Mecha Maiden" \
+  --out content-gen/assets/references/mlbb_ruby.jpg
 ```
+
+### D. Perintah Validasi Integritas Sistem (Quality Gate Check)
+
+Jalankan perintah ini kapan saja untuk memverifikasi seluruh komponen data, schema, dan memori tetap valid:
+
+```bash
+python3 scripts/validate_system.py
+```
+
+Output yang diharapkan adalah `🎉 ALL QUALITY GATES PASSED!`.

@@ -1,5 +1,5 @@
 version: "1.0"
-name: social-commerce-content-gen-pipeline
+name: content-gen-pipeline
 description: >
   Pipeline plan -> execute -> critique untuk menghasilkan konten sosmed
   (image prompt + caption) dari satu produk Akunmu Game.

@@ -1,0 +1,1 @@
+../content-gen/scripts/fetch_character_reference.py

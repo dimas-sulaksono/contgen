@@ -1,0 +1,1 @@
+../content-gen/scripts/validate_system.py

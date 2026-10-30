@@ -1,6 +1,6 @@
 openspec: "1.0"
 info:
-  name: social-commerce-content-gen
+  name: content-gen
   version: 1.0.0
   description: >
     Kontrak input/output untuk skill generator konten sosmed (image prompt + caption)

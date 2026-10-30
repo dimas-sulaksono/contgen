@@ -1,5 +1,5 @@
 ---
-name: social-commerce-content-gen
+name: content-gen
 description: >-
   Generator konten social commerce (Image Generation Prompt + Social Media Caption)
   berbasis bukti katalog produk (akungame.id) dan adaptasi pola anatomi visual/copy
@@ -8,10 +8,11 @@ triggers:
   - generate konten sosmed
   - buat post instagram top up
   - social commerce content
+  - content-gen
   - image prompt dan caption akungame
 version: 1.0.0
 ---
-# Skill: `social-commerce-content-gen`
+# Skill: `content-gen`
 
 Skill ini menghasilkan paket konten media sosial siap posting (**Image Prompt terstruktur + Layout Notes + Caption + QA Report**) untuk brand target yang dikonfigurasi di `./config/target_brand.yaml`.
 
